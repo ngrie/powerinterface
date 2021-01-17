@@ -1,3 +1,5 @@
+const getValue = (item) => item ? item.formattedValue : '?'
+
 const buildHeader = () => `<!DOCTYPE html>
 <html lang="de">
   <head>
@@ -30,20 +32,20 @@ const buildTable = (data) => `
 <div style="display: flex">
   <div style="width: 50%">
     <table style="border: 0">
-      <tr><td>Solar Leistung gesamt</td><td>${data.solarPower.formattedValue}</td></tr>
-      <tr><td>Leistung Eingang 1</td><td>${data.line1Power.formattedValue}</td></tr>
-      <tr><td>Spannung Eingang 1</td><td>${data.line1Voltage.formattedValue}</td></tr>
-      <tr><td>Strom Eingang 1</td><td>${data.line1Current.formattedValue}</td></tr>
-      <tr><td>Temperatur Eingang 1</td><td>${data.line1Temperature.formattedValue}</td></tr>
+      <tr><td>Solar Leistung gesamt</td><td>${getValue(data.solarPower)}</td></tr>
+      <tr><td>Leistung Eingang 1</td><td>${getValue(data.line1Power)}</td></tr>
+      <tr><td>Spannung Eingang 1</td><td>${getValue(data.line1Voltage)}</td></tr>
+      <tr><td>Strom Eingang 1</td><td>${getValue(data.line1Current)}</td></tr>
+      <tr><td>Temperatur Eingang 1</td><td>${getValue(data.line1Temperature)}</td></tr>
     </table>
   </div>
   <div>
     <table style="border: 0">
       <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
-      <tr><td>Leistung Eingang 2</td><td>${data.line1Power.formattedValue}</td></tr>
-      <tr><td>Spannung Eingang 2</td><td>${data.line2Voltage.formattedValue}</td></tr>
-      <tr><td>Strom Eingang 2</td><td>${data.line2Current.formattedValue}</td></tr>
-      <tr><td>Temperatur Eingang 2</td><td>${data.line2Temperature.formattedValue}</td></tr>
+      <tr><td>Leistung Eingang 2</td><td>${getValue(data.line1Power)}</td></tr>
+      <tr><td>Spannung Eingang 2</td><td>${getValue(data.line2Voltage)}</td></tr>
+      <tr><td>Strom Eingang 2</td><td>${getValue(data.line2Current)}</td></tr>
+      <tr><td>Temperatur Eingang 2</td><td>${getValue(data.line2Temperature)}</td></tr>
     </table>
   </div>
 </div>
@@ -52,15 +54,15 @@ const buildTable = (data) => `
 <div style="display: flex">
   <div style="width: 50%">
     <table style="border: 0">
-      <tr><td>Systemleistung</td><td>${data.systemPerformance.formattedValue}</td></tr>
-      <tr><td>Netzspannung</td><td>${data.lineVoltage.formattedValue}</td></tr>
-      <tr><td>Netzfrequenz</td><td>${data.lineFrequency.formattedValue}</td></tr>
+      <tr><td>Systemleistung</td><td>${getValue(data.systemPerformance)}</td></tr>
+      <tr><td>Netzspannung</td><td>${getValue(data.lineVoltage)}</td></tr>
+      <tr><td>Netzfrequenz</td><td>${getValue(data.lineFrequency)}</td></tr>
     </table>
   </div>
   <div>
     <table style="border: 0">
-      <tr><td>Leistung am Local Out</td><td>${data.localOutPower.formattedValue}</td></tr>
-      <tr><td>Spannung am Local Out</td><td>${data.localOutVoltage.formattedValue}</td></tr>
+      <tr><td>Leistung am Local Out</td><td>${getValue(data.localOutPower)}</td></tr>
+      <tr><td>Spannung am Local Out</td><td>${getValue(data.localOutVoltage)}</td></tr>
       <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
     </table>
   </div>
@@ -70,11 +72,11 @@ const buildTable = (data) => `
 <div style="display: flex">
   <div style="width: 50%">
     <table style="border: 0">
-      <tr><td>Ladezustand</td><td>${data.stateOfCharge.formattedValue}</td></tr>
-      <tr><td>Leistung</td><td>${data.batteryPower.formattedValue}</td></tr>
-      <tr><td>Spannung</td><td>${data.batteryVoltage.formattedValue}</td></tr>
-      <tr><td>Strom</td><td>${data.batteryCurrent.formattedValue}</td></tr>
-      <tr><td>Batterie Temperatur</td><td>${data.batteryTemperature.formattedValue}</td></tr>
+      <tr><td>Ladezustand</td><td>${getValue(data.stateOfCharge)}</td></tr>
+      <tr><td>Leistung</td><td>${getValue(data.batteryPower)}</td></tr>
+      <tr><td>Spannung</td><td>${getValue(data.batteryVoltage)}</td></tr>
+      <tr><td>Strom</td><td>${getValue(data.batteryCurrent)}</td></tr>
+      <tr><td>Batterie Temperatur</td><td>${getValue(data.batteryTemperature)}</td></tr>
     </table>
   </div>
 </div>
@@ -83,21 +85,21 @@ const buildTable = (data) => `
 <div style="display: flex">
   <div style="width: 50%">
     <table style="border: 0">
-      <tr><td>Sensor Leistung</td><td>${data.platformPower.formattedValue}</td></tr>
-      <tr><td>Leistung phase 1</td><td>${data.phase1Power.formattedValue}</td></tr>
-      <tr><td>Spannung phase 1</td><td>${data.phase1Voltage.formattedValue}</td></tr>
-      <tr><td>Strom phase 1</td><td>${data.phase1Current.formattedValue}</td></tr>
-      <tr><td>Leistung phase 3</td><td>${data.phase3Power.formattedValue}</td></tr>
-      <tr><td>Spannung phase 3</td><td>${data.phase3Voltage.formattedValue}</td></tr>
-      <tr><td>Strom phase 3</td><td>${data.phase3Current.formattedValue}</td></tr>
+      <tr><td>Sensor Leistung</td><td>${getValue(data.platformPower)}</td></tr>
+      <tr><td>Leistung phase 1</td><td>${getValue(data.phase1Power)}</td></tr>
+      <tr><td>Spannung phase 1</td><td>${getValue(data.phase1Voltage)}</td></tr>
+      <tr><td>Strom phase 1</td><td>${getValue(data.phase1Current)}</td></tr>
+      <tr><td>Leistung phase 3</td><td>${getValue(data.phase3Power)}</td></tr>
+      <tr><td>Spannung phase 3</td><td>${getValue(data.phase3Voltage)}</td></tr>
+      <tr><td>Strom phase 3</td><td>${getValue(data.phase3Current)}</td></tr>
     </table>
   </div>
   <div>
     <table style="border: 0">
       <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
-      <tr><td>Leistung phase 2</td><td>${data.phase2Power.formattedValue}</td></tr>
-      <tr><td>Spannung phase 2</td><td>${data.phase2Voltage.formattedValue}</td></tr>
-      <tr><td>Strom phase 2</td><td>${data.phase2Current.formattedValue}</td></tr>
+      <tr><td>Leistung phase 2</td><td>${getValue(data.phase2Power)}</td></tr>
+      <tr><td>Spannung phase 2</td><td>${getValue(data.phase2Voltage)}</td></tr>
+      <tr><td>Strom phase 2</td><td>${getValue(data.phase2Current)}</td></tr>
       <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
       <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
       <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
