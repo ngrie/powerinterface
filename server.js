@@ -98,6 +98,8 @@ app.post('/events.json', (req, res) => {
         logPowerrouterResponse(err)
         res.type('json').status(201).send({ 'next-log-level': 2, status: 'ok' })
       })
+  } else {
+    res.type('json').status(201).send({ 'next-log-level': 2, status: 'ok' })
   }
 })
 
