@@ -60,8 +60,8 @@ const params = {
     key: 'systemPerformance',
     group: 'Netz & lokale Verbindung',
     label: 'Systemleistung',
-    unit: 'kW',
-    format: (v) => v / 1000,
+    unit: 'W',
+    format: (v) => v,
   },
   '9.3': {
     key: 'energyProduced',
