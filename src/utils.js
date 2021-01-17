@@ -1,17 +1,22 @@
 import fs from 'fs'
 import axios from 'axios'
 
+const stringify = (input) => typeof input === 'object' ? JSON.stringify(input) : ''+input
+
+
 const logUnknownRequest = (req, error) => {
-  fs.appendFile('unknown_requests.txt', `${(new Date()).toISOString()} ${req.method} ${req.hostname}${req.path} ${typeof req.body === 'object' ? JSON.stringify(req.body) : req.body}${error ? '\nError while handling request: '+error : ''}\n\n`, err => {
+  fs.appendFile('unknown_requests.txt', `${(new Date()).toISOString()} ${req.method} ${req.hostname}${req.path} ${stringify(req.body)}${error ? '\nError while handling request: '+error : ''}\n\n`, err => {
     if (err) console.error('Error occurred while saving to unknown_requests.txt', err)
   })
 }
 
 const logPowerrouterResponse = (data) => {
-  const text = data.status ? `${data.status} ${data.data}` : ''+data
-  fs.appendFile('powerrouter_responses.txt', `${(new Date()).toISOString()} ${text}\n\n`, err => {
-    if (err) console.error('Error occurred while saving to powerrouter_responses.txt', err)
-  })
+  const text = data.status ? `${data.status} ${stringify(data.data)}` : stringify(data)
+  if (text !== '{"next-log-level":2,"status":"ok"}') {
+    fs.appendFile('powerrouter_responses.txt', `${(new Date()).toISOString()} ${text}\n\n`, err => {
+      if (err) console.error('Error occurred while saving to powerrouter_responses.txt', err)
+    })
+  }
 }
 
 const runUpdateCheck = (currentTagName, onUpdateAvailable) => {
