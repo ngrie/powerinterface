@@ -90,14 +90,15 @@ app.post('/events.json', (req, res) => {
   if (forwardRequests) {
     // forward request to logging1.powerrouter.com
     axios.post('http://217.114.110.59/events.json', req.body, { headers: { Host: 'logging1.powerrouter.com' }})
-      .then((res) => {
-        logPowerrouterResponse(res)
+      .then((axRes) => {
+        res.type('json').status(axRes.status).send(axRes.data)
+        logPowerrouterResponse(axRes)
       })
       .catch(err => {
         logPowerrouterResponse(err)
+        res.type('json').status(201).send({ 'next-log-level': 2, status: 'ok' })
       })
   }
-  res.type('json').status(201).send({ 'next-log-level': 2, status: 'ok' })
 })
 
 app.route('*').all((req, res) => {
