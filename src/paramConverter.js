@@ -1,5 +1,19 @@
+const modules = {
+  9: 'dcac',
+  11: 'gridSensor',
+  12: 'solar',
+  16: 'platform',
+  136: 'battery,'
+}
+
+const statusMapping = {
+  88883457: 'winterMode',
+  113263427: 'discharging',
+}
+
 const convert = ({ module_statuses, header, ...rest }, paramDefinition) => {
   const data = {}
+  const statuses = {}
   let unknownRequest = false
 
   if (Object.keys(rest).length) {
@@ -15,6 +29,8 @@ const convert = ({ module_statuses, header, ...rest }, paramDefinition) => {
         }
         return
       }
+
+      statuses[id] = statusMapping[module.status] || module.status
 
       const paramId = objKey.split('_').pop()
       if (!paramDefinition[`${id}.${paramId}`]) {
@@ -33,7 +49,7 @@ const convert = ({ module_statuses, header, ...rest }, paramDefinition) => {
     })
   })
 
-  return { data, unknownRequest }
+  return { data, statuses, unknownRequest }
 }
 
 export default convert
