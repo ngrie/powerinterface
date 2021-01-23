@@ -42,7 +42,7 @@ const buildTable = (data) => `
   <div>
     <table style="border: 0">
       <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
-      <tr><td>Leistung Eingang 2</td><td>${getValue(data.line1Power)}</td></tr>
+      <tr><td>Leistung Eingang 2</td><td>${getValue(data.line2Power)}</td></tr>
       <tr><td>Spannung Eingang 2</td><td>${getValue(data.line2Voltage)}</td></tr>
       <tr><td>Strom Eingang 2</td><td>${getValue(data.line2Current)}</td></tr>
       <tr><td>Temperatur Eingang 2</td><td>${getValue(data.line2Temperature)}</td></tr>
