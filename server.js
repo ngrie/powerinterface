@@ -7,10 +7,12 @@ import morgan from 'morgan'
 import paramConverter from './src/paramConverter.js'
 import paramDefinition from './src/paramDefinition.js'
 import buildWebinterface from './src/webinterface.js'
-import { logPowerrouterResponse, logUnknownRequest, runUpdateCheck } from './src/utils.js'
+import { logPowerrouterResponse, logUnknownRequest, runUpdateCheck, handleSigInt } from './src/utils.js'
 import CURRENT_VERSION from './currentVersion.js'
 
 import InfluxDbAction from './src/actions/InfluxDbAction.js'
+
+handleSigInt()
 
 let config = {}
 let influxAction = null

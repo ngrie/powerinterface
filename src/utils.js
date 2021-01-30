@@ -1,3 +1,4 @@
+import process from 'process'
 import fs from 'fs'
 import axios from 'axios'
 
@@ -37,8 +38,16 @@ const runUpdateCheck = (currentTagName, onUpdateAvailable) => {
     })
 }
 
+const handleSigInt = () => {
+  process.on('SIGINT', () => {
+    console.info('SIGINT received, exiting ...')
+    process.exit(0)
+  })
+}
+
 export {
   logUnknownRequest,
   logPowerrouterResponse,
   runUpdateCheck,
+  handleSigInt,
 }
