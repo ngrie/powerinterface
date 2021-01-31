@@ -12,6 +12,7 @@ This is a simple web interface that shows statistics about your Nedap PowerRoute
 - [Requirements / prerequisites](#requirements--prerequisites)
 - [Installing](#installing)
 - [Updating](#updating)
+- [Send data to an InfluxDB](#send-data-to-an-influxdb)
 
 ### Requirements / prerequisites
 
@@ -103,3 +104,23 @@ git pull
 npm install
 systemctl restart powerinterface
 ```
+
+### Send data to an InfluxDB
+
+Powerinterface just shows you the current data from your PowerRouter. You can use InfluxDB to continuously store the data and then e.g. create graphs from it using Grafana. You could run InfluxDB and Grafana on the same device you run Powerinterface on, e.g. in Docker containers.
+
+This guide assumes you have InfluxDB up and running. In the Powerinterface directory, place the following in the `config.yml` file (create it if not existing already):
+
+```yaml
+actions:
+  - type: influxdb
+    host: 127.0.0.1
+    database: powerinterface
+    username: root
+    password: root
+    port: 8086
+```
+
+Of course, adjust host, database, username, password and port as needed (if you run InfluxDB on the same device without changing any configs the above values should work).
+
+Afterwards, restart Powerinterface (Docker: `docker-compose restart`, systemd: `systemctl restart powerinterface`).
