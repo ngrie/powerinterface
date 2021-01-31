@@ -11,15 +11,6 @@ const logUnknownRequest = (req, error) => {
   })
 }
 
-const logPowerrouterResponse = (data) => {
-  const text = data.status ? `${data.status} ${stringify(data.data)}` : stringify(data)
-  if (text !== '201 {"next-log-level":2,"status":"ok"}') {
-    fs.appendFile('powerrouter_responses.txt', `${(new Date()).toISOString()} ${text}\n\n`, err => {
-      if (err) console.error('Error occurred while saving to powerrouter_responses.txt', err)
-    })
-  }
-}
-
 const runUpdateCheck = (currentTagName, onUpdateAvailable) => {
   axios('https://api.github.com/repos/ngrie/powerinterface/releases/latest')
     .then(({ data }) => {
@@ -47,7 +38,6 @@ const handleSigInt = () => {
 
 export {
   logUnknownRequest,
-  logPowerrouterResponse,
   runUpdateCheck,
   handleSigInt,
 }

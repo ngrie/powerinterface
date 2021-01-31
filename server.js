@@ -1,13 +1,12 @@
 import fs from 'fs'
 import YAML from 'yaml'
-import axios from 'axios'
 import express from 'express'
 import morgan from 'morgan'
 
 import paramConverter from './src/paramConverter.js'
 import paramDefinition from './src/paramDefinition.js'
 import buildWebinterface from './src/webinterface.js'
-import { logPowerrouterResponse, logUnknownRequest, runUpdateCheck, handleSigInt } from './src/utils.js'
+import { logUnknownRequest, runUpdateCheck, handleSigInt } from './src/utils.js'
 import CURRENT_VERSION from './currentVersion.js'
 
 import InfluxDbAction from './src/actions/InfluxDbAction.js'
@@ -16,7 +15,6 @@ handleSigInt()
 
 let config = {}
 let influxAction = null
-let forwardRequests = false
 if (fs.existsSync('./config.yml')) {
   config = YAML.parse(fs.readFileSync('./config.yml', 'utf8')) || {}
   if (config.actions && Array.isArray(config.actions) && config.actions.length === 1 && config.actions[0].type === 'influxdb') {
@@ -26,10 +24,6 @@ if (fs.existsSync('./config.yml')) {
     console.log('Influx action registered')
   } else {
     console.warn('Invalid config.yml found, ignoring')
-  }
-
-  if (config.forwardRequests) {
-    forwardRequests = true
   }
 }
 
@@ -70,16 +64,6 @@ app.post('/logs.json', (req, res) => {
     if (influxAction) {
       influxAction.update({ data })
     }
-    if (forwardRequests) {
-      // forward request to logging1.powerrouter.com
-      axios.post('http://217.114.110.59/logs.json', req.body, { headers: { Host: 'logging1.powerrouter.com' }})
-        .then((res) => {
-          logPowerrouterResponse(res)
-        })
-        .catch(err => {
-          logPowerrouterResponse(err)
-        })
-    }
   } catch (e) {
     console.error(e)
     logUnknownRequest(req, e)
@@ -89,20 +73,7 @@ app.post('/logs.json', (req, res) => {
 
 app.post('/events.json', (req, res) => {
   logUnknownRequest(req)
-  if (forwardRequests) {
-    // forward request to logging1.powerrouter.com
-    axios.post('http://217.114.110.59/events.json', req.body, { headers: { Host: 'logging1.powerrouter.com' }})
-      .then((axRes) => {
-        res.type('json').status(axRes.status).send(axRes.data)
-        logPowerrouterResponse(axRes)
-      })
-      .catch(err => {
-        logPowerrouterResponse(err)
-        res.type('json').status(201).send({ 'next-log-level': 2, status: 'ok' })
-      })
-  } else {
-    res.type('json').status(201).send({ 'next-log-level': 2, status: 'ok' })
-  }
+  res.type('json').status(201).send({ 'next-log-level': 2, status: 'ok' })
 })
 
 app.route('*').all((req, res) => {
