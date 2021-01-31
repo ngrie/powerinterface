@@ -6,3 +6,7 @@ services:
     restart: always
     ports:
       - 80:80
+#    volumes:
+#      - type: bind
+#        source: ./config.yml
+#        target: /app/config.yml

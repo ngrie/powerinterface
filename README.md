@@ -123,4 +123,6 @@ actions:
 
 Of course, adjust host, database, username, password and port as needed (if you run InfluxDB on the same device without changing any configs the above values should work).
 
+If you installed Powerinterface using Docker, edit `docker-compose.yml` and uncomment (remove the `#`) the last four lines.
+
 Afterwards, restart Powerinterface (Docker: `docker-compose restart`, systemd: `systemctl restart powerinterface`).
