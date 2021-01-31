@@ -21,7 +21,7 @@ const buildFooter = (lastUpdate, updateAvailable) => `
     
     <div style="margin: 20px auto 10px auto; text-align: center">
       Status page provided by <a href="https://github.com/ngrie/powerinterface" target="_blank">Powerinterface</a>
-      ${updateAvailable ? ' - <strong>Update available!</strong> <a href="https://github.com/ngrie/powerinterface#Updating" target="_blank">Learn how to update</a>' : ''}
+      ${updateAvailable ? '<div style="margin-top: 10px"><strong>Update available!</strong> <a href="https://github.com/ngrie/powerinterface/releases" target="_blank">Read changelog</a> | <a href="https://github.com/ngrie/powerinterface#Updating" target="_blank">Learn how to update</a></div>' : ''}
     </div>
   </body>
 </html>
