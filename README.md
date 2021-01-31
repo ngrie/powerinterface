@@ -7,7 +7,13 @@ This is a simple web interface that shows statistics about your Nedap PowerRoute
 - Show current PowerRouter stats of your PowerRouter
 - Forward data to an InfluxDB
 
-## Requirements / prerequisites
+## Documentation
+
+- [Requirements / prerequisites](#requirements--prerequisites)
+- [Installing](#installing)
+- [Updating](#updating)
+
+### Requirements / prerequisites
 
 To run this software you need a device in your local network which is capable of running Docker or NodeJS. This could be a Raspberry Pi, a modern NAS or any computer. On the device, port 80 must not already be in use.
 
@@ -15,9 +21,9 @@ Apart from that, you need to point the IP address of the PowerRouter logging ser
 
 Make sure to point the domain `logging1.powerrouter.com` to the local IP address of the device Powerinterface should run on. Using Pi-hole this would be done on the page "Local DNS Recods" in the admin interface.
 
-## Installing
+### Installing
 
-### Install using Docker (recommended)
+#### Install using Docker (recommended)
 
 Make sure to install [Docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/). An easy way to install Docker (docker-compose must be installed afterwards):
 
@@ -25,6 +31,8 @@ Make sure to install [Docker](https://docs.docker.com/engine/install/) and [dock
 # run as root:
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
+usermod -aG docker [your username]
+# logout and re-login to use Docker
 ```
 
 Run the following commands:
@@ -39,7 +47,7 @@ docker-compose up -d
 
 Enter `http://[IP of your devie running Powerinterface]` in your browser. You should see a message indicating that Powerinterface is awaiting data of your PowerRouter device. If not, run `docker-compose logs` to check for any errors.
 
-### Install without Docker / run from source
+#### Install without Docker / run from source
 
 Make sure to have NodeJS and Git installed.
 
@@ -77,9 +85,9 @@ systemctl enable powerinterface
 systemctl start powerinterface
 ```
 
-## Updating
+### Updating
 
-### Update docker installation
+#### Update docker installation
 
 ```bash
 cd powerinterface
@@ -87,7 +95,7 @@ docker-compose pull
 docker-compose up -d
 ```
 
-### Update installation without docker
+#### Update installation without docker
 
 ```bash
 cd powerinterface
