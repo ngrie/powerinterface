@@ -19,7 +19,13 @@ Make sure to point the domain `logging1.powerrouter.com` to the local IP address
 
 ### Install using Docker (recommended)
 
-Make sure to install [Docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/).
+Make sure to install [Docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/). An easy way to install Docker (docker-compose must be installed afterwards):
+
+```bash
+# run as root:
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+```
 
 Run the following commands:
 
@@ -33,6 +39,43 @@ docker-compose up -d
 
 Enter `http://[IP of your devie running Powerinterface]` in your browser. You should see a message indicating that Powerinterface is awaiting data of your PowerRouter device. If not, run `docker-compose logs` to check for any errors.
 
+### Install without Docker / run from source
+
+Make sure to have NodeJS and Git installed.
+
+```bash
+git clone https://github.com/ngrie/powerinterface.git
+cd powerinterface
+npm install
+node server.js
+```
+
+Running Powerinterface this way will stop the software when you exit the terminal. To avoid this, create a service definition for your system's service manager. For distributions using systemd, you can use the following file (place at `/etc/systemd/system/powerinterface.service`):
+
+```
+[Unit]
+Description=Powerinterface
+Documentation=https://github.com/ngrie/powerinterface
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/path/to/your/powerinterface
+ExecStart=/usr/bin/node /path/to/your/powerinterface/server.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Run afterwards:
+
+```bash
+systemctl daemon-reload
+systemctl enable powerinterface
+systemctl start powerinterface
+```
 
 ## Updating
 
@@ -42,4 +85,13 @@ Enter `http://[IP of your devie running Powerinterface]` in your browser. You sh
 cd powerinterface
 docker-compose pull
 docker-compose up -d
+```
+
+### Update installation without docker
+
+```bash
+cd powerinterface
+git pull
+npm install
+systemctl restart powerinterface
 ```
