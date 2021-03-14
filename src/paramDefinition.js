@@ -237,7 +237,7 @@ const params = {
     key: 'generatorLine2Power',
     group: 'Generation Sensor',
     label: 'Leistung Phase 2',
-    unit: 'Q',
+    unit: 'W',
     format: (v) => v,
   },
   '14.4': {
