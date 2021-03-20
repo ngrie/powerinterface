@@ -27,7 +27,7 @@ const buildFooter = (lastUpdate, updateAvailable) => `
 </html>
 `
 
-const buildTable = (data) => `
+const buildTable = (data, { isWinterMode, isMaintenanceCharge }) => `
 <h3>PV Stränge</h3>
 <div style="display: flex">
   <div style="width: 50%">
@@ -68,7 +68,11 @@ const buildTable = (data) => `
   </div>
 </div>
 
-<h3>Batterie</h3>
+<h3>
+  Batterie
+  ${isWinterMode ? '[Wintermodus]' : ''}
+  ${isMaintenanceCharge ? '[Wartungsladung]' : ''}
+</h3>
 <div style="display: flex">
   <div style="width: 50%">
     <table style="border: 0">
@@ -121,9 +125,9 @@ const buildNoDataMessage = () => `
 </div>
 `
 
-const buildWebinterface = (data, lastUpdate, updateAvailable = false) => `
+const buildWebinterface = (data, status, lastUpdate, updateAvailable = false) => `
 ${buildHeader()}
-${lastUpdate ? buildTable(data) : buildNoDataMessage()}
+${lastUpdate ? buildTable(data, status) : buildNoDataMessage()}
 ${buildFooter(lastUpdate, updateAvailable)}
 `
 

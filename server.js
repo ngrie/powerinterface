@@ -6,6 +6,13 @@ import morgan from 'morgan'
 
 import paramConverter from './src/paramConverter.js'
 import paramDefinition from './src/paramDefinition.js'
+import {
+  isMaintenanceChargeEndedEvent,
+  isMaintenanceChargeStartedEvent,
+  isWinterModeEndedEvent,
+  isWinterModeStartedEvent,
+  parseEvent,
+} from './src/eventParser.js'
 import buildWebinterface from './src/webinterface.js'
 import { logUnknownRequest, runUpdateCheck, handleSigInt } from './src/utils.js'
 import CURRENT_VERSION from './currentVersion.js'
@@ -42,12 +49,15 @@ app.use(morgan('combined'))
 let updateAvailable = false
 let currentData = {}
 let currentStatuses = {}
+let events = []
+let isWinterMode = false
+let isMaintenanceCharge = false
 let lastUpdate = null
 
 runUpdateCheck(CURRENT_VERSION, () => updateAvailable = true)
 
 app.get('/', (req, res) => {
-  res.send(buildWebinterface(currentData, lastUpdate, updateAvailable))
+  res.send(buildWebinterface(currentData, { isWinterMode, isMaintenanceCharge }, lastUpdate, updateAvailable))
 })
 
 app.get('/values.json', (req, res) => {
@@ -56,6 +66,10 @@ app.get('/values.json', (req, res) => {
 
 app.get('/status.json', (req, res) => {
   res.type('json').send(currentStatuses)
+})
+
+app.get('/events.json', (req, res) => {
+  res.type('json').send(events.reverse())
 })
 
 app.post('/logs.json', (req, res) => {
@@ -82,6 +96,20 @@ app.post('/logs.json', (req, res) => {
 })
 
 app.post('/events.json', (req, res) => {
+  try {
+    const event = parseEvent(req.body.event)
+    if (isWinterModeStartedEvent(event)) isWinterMode = true
+    if (isWinterModeEndedEvent(event)) isWinterMode = false
+    if (isMaintenanceChargeStartedEvent(event)) isMaintenanceCharge = true
+    if (isMaintenanceChargeEndedEvent(event)) isMaintenanceCharge = false
+
+    events.push(event)
+    if (events.length > 100) {
+      events.shift()
+    }
+  } catch (e) {
+    console.error(e)
+  }
   logUnknownRequest(req)
   if (forwardRequests) {
     // forward request to logging1.powerrouter.com
