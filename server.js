@@ -25,6 +25,7 @@ handleSigInt()
 let config = {}
 let influxAction = null
 let forwardRequests = false
+let logRequests = false
 if (fs.existsSync('./config.yml')) {
   config = YAML.parse(fs.readFileSync('./config.yml', 'utf8')) || {}
   if (config.actions && Array.isArray(config.actions) && config.actions.length === 1 && config.actions[0].type === 'influxdb') {
@@ -38,6 +39,9 @@ if (fs.existsSync('./config.yml')) {
 
   if (config.forwardRequests) {
     forwardRequests = true
+  }
+  if (config.logRequests) {
+    logRequests = true
   }
 }
 
@@ -76,12 +80,12 @@ app.get('/events.json', (req, res) => {
 
 app.post('/logs.json', (req, res) => {
   try {
-    const { data, statuses, unknownRequest } = paramConverter(req.body, paramDefinition)
+    const { data, statuses } = paramConverter(req.body, paramDefinition)
     currentData = data
     currentStatuses = statuses
     lastUpdate = new Date()
     updateStats(data, stats)
-    if (unknownRequest) {
+    if (logRequests) {
       logUnknownRequest(req)
     }
     if (influxAction) {
@@ -93,7 +97,9 @@ app.post('/logs.json', (req, res) => {
     }
   } catch (e) {
     console.error(e)
-    logUnknownRequest(req, e)
+    if (logRequests) {
+      logUnknownRequest(req, e)
+    }
   }
   res.type('json').status(201).send({ 'next-log-level': 2, status: 'ok' })
 })
@@ -113,7 +119,9 @@ app.post('/events.json', (req, res) => {
   } catch (e) {
     console.error(e)
   }
-  logUnknownRequest(req)
+  if (logRequests) {
+    logUnknownRequest(req)
+  }
   if (forwardRequests) {
     // forward request to logging1.powerrouter.com
     axios.post('http://77.222.80.91/events.json', req.body, { headers: { Host: 'logging1.powerrouter.com' } })
@@ -122,7 +130,9 @@ app.post('/events.json', (req, res) => {
 })
 
 app.route('*').all((req, res) => {
-  logUnknownRequest(req)
+  if (logRequests) {
+    logUnknownRequest(req)
+  }
   res.sendStatus(404)
 })
 
