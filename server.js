@@ -19,22 +19,36 @@ import { logUnknownRequest, runUpdateCheck, handleSigInt } from './src/utils.js'
 import CURRENT_VERSION from './currentVersion.js'
 
 import InfluxDbAction from './src/actions/InfluxDbAction.js'
+import PushoverAction from './src/actions/PushoverAction.js'
+
+const actionClasses = {
+  influxdb: InfluxDbAction,
+  pushover: PushoverAction,
+}
+const actions = []
 
 handleSigInt()
 
 let config = {}
-let influxAction = null
 let forwardRequests = false
 let logRequests = false
+
 if (fs.existsSync('./config.yml')) {
   config = YAML.parse(fs.readFileSync('./config.yml', 'utf8')) || {}
-  if (config.actions && Array.isArray(config.actions) && config.actions.length === 1 && config.actions[0].type === 'influxdb') {
-    const { type, ...influxConfig } = config.actions[0]
-    influxAction = new InfluxDbAction(influxConfig)
-    influxAction.boot({ paramDefinition })
-    console.log('Influx action registered')
-  } else {
-    console.warn('Invalid config.yml found, ignoring')
+  if (!Object.keys(config).length) {
+    console.log('Empty or invalid config.yml found, ignoring')
+  } else if (config.actions && Array.isArray(config.actions)) {
+    config.actions.forEach(({ type, ...actionConfig }) => {
+      if (!actionClasses[type]) {
+        console.warn(`Invalid action "${type}" found in config.yml, ignoring`)
+        return
+      }
+
+      const actionInstance = new actionClasses[type](actionConfig)
+      actionInstance.boot({ paramDefinition })
+      actions.push(actionInstance)
+      console.log(`Action registered: ${type}`)
+    })
   }
 
   if (config.forwardRequests) {
@@ -88,9 +102,13 @@ app.post('/logs.json', (req, res) => {
     if (logRequests) {
       logUnknownRequest(req)
     }
-    if (influxAction) {
-      influxAction.update({ data })
-    }
+    actions.forEach((action, index) => {
+      try {
+        action.update({ data })
+      } catch (e) {
+        console.error(`Failed to invoke action at index ${index}`, e)
+      }
+    })
     if (forwardRequests) {
       // forward request to logging1.powerrouter.com
       axios.post('http://77.222.80.91/logs.json', req.body, { headers: { Host: 'logging1.powerrouter.com' } })
