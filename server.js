@@ -32,6 +32,7 @@ handleSigInt()
 let config = {}
 let forwardRequests = false
 let logRequests = false
+let webReload = 60
 
 if (fs.existsSync('./config.yml')) {
   config = YAML.parse(fs.readFileSync('./config.yml', 'utf8')) || {}
@@ -57,6 +58,9 @@ if (fs.existsSync('./config.yml')) {
   if (config.logRequests) {
     logRequests = true
   }
+  if ('webReload' in config) {
+    webReload = parseInt(config.webReload)
+  }
 }
 
 const app = express()
@@ -77,7 +81,7 @@ let stats = initStats()
 runUpdateCheck(CURRENT_VERSION, () => updateAvailable = true)
 
 app.get('/', (req, res) => {
-  res.send(buildWebinterface(currentData, stats, { isWinterMode, isMaintenanceCharge }, lastUpdate, updateAvailable))
+  res.send(buildWebinterface(currentData, stats, { isWinterMode, isMaintenanceCharge }, { webReload }, lastUpdate, updateAvailable))
 })
 
 app.get('/values.json', (req, res) => {
@@ -89,7 +93,7 @@ app.get('/status.json', (req, res) => {
 })
 
 app.get('/events.json', (req, res) => {
-  res.type('json').send(events.reverse())
+  res.type('json').send([...events].reverse())
 })
 
 app.post('/logs.json', (req, res) => {

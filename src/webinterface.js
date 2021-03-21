@@ -32,7 +32,7 @@ const buildHeader = () => `<!DOCTYPE html>
   <body style="background-color: #dedede; font-family: Arial, serif">
     <div style="width: 600px; background-color: #fff; margin: 0 auto; padding: 15px">`
 
-const buildFooter = (lastUpdate, updateAvailable) => `
+const buildFooter = (lastUpdate, updateAvailable, reload) => `
       <small>Last update: ${lastUpdate ? lastUpdate.toString() : 'never'}</small>
     </div>
     
@@ -40,6 +40,8 @@ const buildFooter = (lastUpdate, updateAvailable) => `
       Status page provided by <a href="https://github.com/ngrie/powerinterface" target="_blank">Powerinterface</a>
       ${updateAvailable ? '<div style="margin-top: 10px"><strong>Update available!</strong> <a href="https://github.com/ngrie/powerinterface/releases" target="_blank">Read changelog</a> | <a href="https://github.com/ngrie/powerinterface#Updating" target="_blank">Learn how to update</a></div>' : ''}
     </div>
+    
+    ${reload && Number.isInteger(reload) && reload > 0 ? '<script type="text/javascript">setTimeout(function() { location.reload() }, ' + reload * 1000 + ')</script>' : ''}
   </body>
 </html>
 `
@@ -159,10 +161,10 @@ const buildNoDataMessage = () => `
 </div>
 `
 
-const buildWebinterface = (data, stats, status, lastUpdate, updateAvailable = false) => `
+const buildWebinterface = (data, stats, status, config, lastUpdate, updateAvailable = false) => `
 ${buildHeader()}
 ${lastUpdate ? buildTable(data, stats, status) : buildNoDataMessage()}
-${buildFooter(lastUpdate, updateAvailable)}
+${buildFooter(lastUpdate, updateAvailable, config.webReload)}
 `
 
 export default buildWebinterface
