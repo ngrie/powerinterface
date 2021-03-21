@@ -41,6 +41,7 @@ const parseEvent = (e) => {
     unknownFrequency1: parseInt(convertHex(hexParts.unknownFrequency1), 16) / 100,
     voltage: parseInt(convertHex(hexParts.voltage), 16) / 100,
     unknownFrequency2: parseInt(convertHex(hexParts.unknownFrequency2), 16) / 100,
+    rawEvent: e,
   }
 }
 

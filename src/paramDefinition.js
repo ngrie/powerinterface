@@ -106,10 +106,10 @@ const params = {
     format: (v) => v / 100,
   },
   '9.9': {
-    key: 'unknown1',
-    group: 'unknown',
-    label: '-',
-    unit: '?',
+    key: 'busPerformance',
+    group: 'invisible',
+    label: 'Busleistung',
+    unit: 'W',
     format: (v) => v,
   },
   '9.10': {

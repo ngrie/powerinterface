@@ -131,7 +131,7 @@ app.post('/events.json', (req, res) => {
     if (isMaintenanceChargeEndedEvent(event)) isMaintenanceCharge = false
 
     events.push(event)
-    if (events.length > 100) {
+    if (events.length > 300) {
       events.shift()
     }
   } catch (e) {
