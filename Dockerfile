@@ -7,6 +7,8 @@ WORKDIR /app
 
 RUN npm install
 
+ENV TZ=Europe/Berlin
+
 EXPOSE 80
 
 CMD ["node", "server.js"]
