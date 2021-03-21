@@ -13,6 +13,7 @@ import {
   isWinterModeStartedEvent,
   parseEvent,
 } from './src/eventParser.js'
+import { initStats, updateStats } from './src/inMemoryStats.js'
 import buildWebinterface from './src/webinterface.js'
 import { logUnknownRequest, runUpdateCheck, handleSigInt } from './src/utils.js'
 import CURRENT_VERSION from './currentVersion.js'
@@ -53,11 +54,12 @@ let events = []
 let isWinterMode = false
 let isMaintenanceCharge = false
 let lastUpdate = null
+let stats = initStats()
 
 runUpdateCheck(CURRENT_VERSION, () => updateAvailable = true)
 
 app.get('/', (req, res) => {
-  res.send(buildWebinterface(currentData, { isWinterMode, isMaintenanceCharge }, lastUpdate, updateAvailable))
+  res.send(buildWebinterface(currentData, stats, { isWinterMode, isMaintenanceCharge }, lastUpdate, updateAvailable))
 })
 
 app.get('/values.json', (req, res) => {
@@ -78,6 +80,7 @@ app.post('/logs.json', (req, res) => {
     currentData = data
     currentStatuses = statuses
     lastUpdate = new Date()
+    updateStats(data, stats)
     if (unknownRequest) {
       logUnknownRequest(req)
     }

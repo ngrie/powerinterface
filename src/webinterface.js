@@ -1,4 +1,19 @@
 const getValue = (item) => item ? item.formattedValue : '?'
+const calculateStats = (key, range, currentData, stats) => {
+  if (!currentData[key] || !stats.data || !stats.data[key] || !stats.data[key][range]) {
+    return '?'
+  }
+  const raw = currentData[key].rawValue - stats.data[key][range].rawValue
+  return `${currentData[key].format(raw)} ${currentData[key].unit}`
+}
+const buildStatsDailyLabel = (stats) => `seit ${stats.dataSince.daily.toLocaleTimeString(
+  'de-DE',
+  { hour: '2-digit', minute:'2-digit' }
+)} Uhr`
+const buildStatsMonthlyLabel = (stats) => `seit ${stats.dataSince.daily.toLocaleDateString(
+  'de-DE',
+  { day: '2-digit', month:'2-digit' }
+)}`
 
 const buildHeader = () => `<!DOCTYPE html>
 <html lang="de">
@@ -10,6 +25,8 @@ const buildHeader = () => `<!DOCTYPE html>
     <style>
       table { margin-bottom: 15px }
       td:last-child { padding-left: 10px; font-weight: bold }
+      .stats td:last-child { padding-left: inherit; font-weight: inherit }
+      .stats td:not(:first-child) { padding-left: 10px }
     </style>
   </head>
   <body style="background-color: #dedede; font-family: Arial, serif">
@@ -27,7 +44,7 @@ const buildFooter = (lastUpdate, updateAvailable) => `
 </html>
 `
 
-const buildTable = (data, { isWinterMode, isMaintenanceCharge }) => `
+const buildTable = (data, stats, { isWinterMode, isMaintenanceCharge }) => `
 <h3>PV Stränge</h3>
 <div style="display: flex">
   <div style="width: 50%">
@@ -110,6 +127,23 @@ const buildTable = (data, { isWinterMode, isMaintenanceCharge }) => `
     </table>
   </div>
 </div>
+
+<h3>Statistiken</h3>
+<table class="stats" style="border: 0">
+  <tr><td>&nbsp;</td><td>${buildStatsDailyLabel(stats)}</td><td>${buildStatsMonthlyLabel(stats)}</td><td>gesamt</td></tr>
+  <tr>
+    <td>Solarenergie produziert</td>
+    <td>${calculateStats('solarEnergy', 'daily', data, stats)}</td>
+    <td>${calculateStats('solarEnergy', 'monthly', data, stats)}</td>
+    <td>${getValue(data.solarEnergy)}</td>
+  </tr>
+  <tr>
+    <td>Energie eingespeist</td>
+    <td>${calculateStats('energyPlatformProduced', 'daily', data, stats)}</td>
+    <td>${calculateStats('energyPlatformProduced', 'monthly', data, stats)}</td>
+    <td>${getValue(data.energyPlatformProduced)}</td>
+  </tr>
+</table>
 `
 
 const buildNoDataMessage = () => `
@@ -125,9 +159,9 @@ const buildNoDataMessage = () => `
 </div>
 `
 
-const buildWebinterface = (data, status, lastUpdate, updateAvailable = false) => `
+const buildWebinterface = (data, stats, status, lastUpdate, updateAvailable = false) => `
 ${buildHeader()}
-${lastUpdate ? buildTable(data, status) : buildNoDataMessage()}
+${lastUpdate ? buildTable(data, stats, status) : buildNoDataMessage()}
 ${buildFooter(lastUpdate, updateAvailable)}
 `
 
