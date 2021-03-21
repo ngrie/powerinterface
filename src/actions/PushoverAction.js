@@ -32,10 +32,16 @@ class PushoverAction {
         return
       }
 
-      const { app_key, user_key } = this.config
-      const msg = encodeURIComponent(this.config.message ?? `Der Powerrouter liefert keinen Wert für "${param}".`)
-
-      axios.post(`https://api.pushover.net/1/messages.json?token=${app_key}&user=${user_key}&message=${msg}`)
+      const params = {
+        token: this.config.app_key,
+        user: this.config.user_key,
+        message: this.config.message ?? `Der Powerrouter liefert keinen Wert für "${param}".`,
+      }
+      if (this.config.device) {
+        params.device = this.config.device
+      }
+console.log(params)
+      axios.post('https://api.pushover.net/1/messages.json', null, { params })
         .then(() => {
           this.notificationSent = true
         })
