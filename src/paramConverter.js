@@ -14,19 +14,11 @@ const statusMapping = {
 const convert = ({ module_statuses, header, ...rest }, paramDefinition) => {
   const data = {}
   const statuses = {}
-  let unknownRequest = false
-
-  if (Object.keys(rest).length) {
-    unknownRequest = true
-  }
 
   module_statuses.forEach(module => {
     const id = module.module_id
     Object.entries(module).forEach(([objKey, value]) => {
       if (!objKey.startsWith('param_')) {
-        if (!['module_id', 'status', 'version'].includes(objKey)) {
-          unknownRequest = true
-        }
         return
       }
 
@@ -34,7 +26,6 @@ const convert = ({ module_statuses, header, ...rest }, paramDefinition) => {
 
       const paramId = objKey.split('_').pop()
       if (!paramDefinition[`${id}.${paramId}`]) {
-        unknownRequest = true
         return
       }
 
@@ -49,7 +40,7 @@ const convert = ({ module_statuses, header, ...rest }, paramDefinition) => {
     })
   })
 
-  return { data, statuses, unknownRequest }
+  return { data, statuses }
 }
 
 export default convert
