@@ -10,7 +10,7 @@ const buildStatsDailyLabel = (stats) => `seit ${stats.dataSince.daily.toLocaleTi
   'de-DE',
   { hour: '2-digit', minute:'2-digit' }
 )} Uhr`
-const buildStatsMonthlyLabel = (stats) => `seit ${stats.dataSince.daily.toLocaleDateString(
+const buildStatsMonthlyLabel = (stats) => `seit ${stats.dataSince.monthly.toLocaleDateString(
   'de-DE',
   { day: '2-digit', month:'2-digit' }
 )}`
