@@ -10,11 +10,11 @@ const updateStats = (newData, stats) => {
   const now = new Date()
   let resetDaily = false
   let resetMonthly = false
-  if (!stats.dataSince.daily || now.getHours() < stats.dataSince.daily.getHours()) {
+  if (!stats.dataSince.daily || now.getDate() !== stats.dataSince.daily.getDate()) {
     stats.dataSince.daily = now
     resetDaily = true
   }
-  if (!stats.dataSince.monthly || now.getDate() < stats.dataSince.monthly.getDate()) {
+  if (!stats.dataSince.monthly || now.getMonth() !== stats.dataSince.monthly.getMonth()) {
     stats.dataSince.monthly = now
     resetMonthly = true
   }
