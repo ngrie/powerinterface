@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+const isValueZero = (key, data) => key in data && data[key].rawValue === 0
+
 class PushoverAction {
   constructor(config) {
     this.config = config
@@ -28,7 +30,7 @@ class PushoverAction {
 
   checkParamMissing(param, data) {
     if (!Object.keys(data).includes(param)) {
-      if (this.notificationSent) {
+      if (this.notificationSent || this.shouldIgnoreTrigger(data)) {
         return
       }
 
@@ -51,6 +53,10 @@ console.log(params)
     } else {
       this.notificationSent = false
     }
+  }
+
+  shouldIgnoreTrigger(data) {
+    return isValueZero('solarPower', data) && isValueZero('systemPerformance', data) && isValueZero('batteryPower', data);
   }
 }
 
