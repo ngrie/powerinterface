@@ -13,7 +13,7 @@ class InfluxDbAction {
         fields: {
           value: Influx.FieldType.FLOAT,
         },
-        tags: ['unit'],
+        tags: ['unit', 'powerRouterId'],
       })),
     })
 
@@ -28,11 +28,12 @@ class InfluxDbAction {
       })
   }
 
-  update({ data }) {
+  update({ data, powerRouterId }) {
     this.connection.writePoints(Object.entries(data).map(([name, paramData]) => ({
       measurement: name,
       tags: {
         unit: paramData.unit,
+        powerRouterId,
       },
       fields: {
         value: paramData.value,

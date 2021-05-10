@@ -106,9 +106,11 @@ app.post('/logs.json', (req, res) => {
     if (logRequests) {
       logUnknownRequest(req)
     }
+
+    const powerRouterId = req.body.header.powerrouter_id
     actions.forEach((action, index) => {
       try {
-        action.update({ data })
+        action.update({ data, powerRouterId })
       } catch (e) {
         console.error(`Failed to invoke action at index ${index}`, e)
       }

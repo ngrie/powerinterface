@@ -42,7 +42,7 @@ class PushoverAction {
       if (this.config.device) {
         params.device = this.config.device
       }
-console.log(params)
+
       axios.post('https://api.pushover.net/1/messages.json', null, { params })
         .then(() => {
           this.notificationSent = true
