@@ -70,47 +70,86 @@ app.use(express.json())
 app.use(morgan('combined'))
 
 let updateAvailable = false
-let currentData = {}
-let currentStatuses = {}
-let events = []
-let isWinterMode = false
-let isMaintenanceCharge = false
-let lastUpdate = null
-let stats = initStats()
+let powerRouters = new Map()
 
 runUpdateCheck(CURRENT_VERSION, () => updateAvailable = true)
 
 app.get('/', (req, res) => {
-  res.send(buildWebinterface(currentData, stats, { isWinterMode, isMaintenanceCharge }, { webReload }, lastUpdate, updateAvailable))
+  let powerRouterId = req.query.powerRouterId
+  console.log('PowerRouter ID: ', powerRouterId)
+  if (!powerRouters.has(powerRouterId)) {
+    let powerRouter = powerRouters.get(powerRouterId)
+    let isWinterMode = powerRouter.isWinterMode
+    let isMaintenanceCharge = powerRouter.isMaintenanceCharge
+    res.send(buildWebinterface(powerRouter.currentData, powerRouter.stats, {
+      isWinterMode,
+      isMaintenanceCharge
+    }, {webReload}, powerRouter.lastUpdate, updateAvailable))
+  } else if (powerRouters.size > 0) {
+    let powerRouter = powerRouters.values().next().value
+    let isWinterMode = powerRouter.isWinterMode
+    let isMaintenanceCharge = powerRouter.isMaintenanceCharge
+    res.send(buildWebinterface(powerRouter.currentData, powerRouter.stats, {
+      isWinterMode,
+      isMaintenanceCharge
+    }, {webReload}, powerRouter.lastUpdate, updateAvailable))
+  } else {
+    res.send(buildWebinterface({}, initStats(), {
+      isWinterMode:false,
+      isMaintenanceCharge:false
+    }, {webReload}, null, updateAvailable))
+  }
 })
 
 app.get('/values.json', (req, res) => {
-  res.type('json').send(currentData)
+  let powerRouterId = req.query.powerRouterId
+  if (!powerRouters.has(powerRouterId)) {
+    res.type('json').send(powerRouters.get(powerRouterId).currentData)
+  } else {
+    res.type('json').send({})
+  }
 })
 
 app.get('/status.json', (req, res) => {
-  res.type('json').send(currentStatuses)
+  let powerRouterId = req.query.powerRouterId
+  if (!powerRouters.has(powerRouterId)) {
+    res.type('json').send(powerRouters.get(powerRouterId).currentStatuses)
+  } else {
+    res.type('json').send({})
+  }
 })
 
 app.get('/events.json', (req, res) => {
-  res.type('json').send([...events].reverse())
+  let powerRouterId = req.query.powerRouterId
+  if (!powerRouters.has(powerRouterId)) {
+    res.type('json').send([...powerRouters.get(powerRouterId).events].reverse())
+  } else {
+    res.type('json').send([])
+  }
 })
 
 app.post('/logs.json', (req, res) => {
   try {
     const { data, statuses } = paramConverter(req.body, paramDefinition)
-    currentData = data
-    currentStatuses = statuses
-    lastUpdate = new Date()
-    updateStats(data, stats)
+    const powerRouterId = req.body.header.powerrouter_id
+    if (!powerRouters.has(powerRouterId)) {
+      let powerRouter = {}
+      powerRouter.powerRouterId = powerRouterId
+      powerRouters.set(powerRouterId, powerRouter)
+    }
+    let powerRouter = powerRouters.get(powerRouterId)  // null  {}
+    powerRouter.stats = initStats()
+    powerRouter.currentData = data
+    powerRouter.currentStatuses = statuses
+    powerRouter.lastUpdate = new Date()
+    updateStats(data, powerRouter.stats)
     if (logRequests) {
       logUnknownRequest(req)
     }
 
-    const powerRouterId = req.body.header.powerrouter_id
     actions.forEach((action, index) => {
       try {
-        action.update({ data, powerRouterId })
+        action.update({ data, powerRouterID })
       } catch (e) {
         console.error(`Failed to invoke action at index ${index}`, e)
       }
@@ -134,14 +173,27 @@ app.post('/logs.json', (req, res) => {
 app.post('/events.json', (req, res) => {
   try {
     const event = parseEvent(req.body.event)
+    let isWinterMode = false
+    let isMaintenanceCharge = false
     if (isWinterModeStartedEvent(event)) isWinterMode = true
     if (isWinterModeEndedEvent(event)) isWinterMode = false
     if (isMaintenanceChargeStartedEvent(event)) isMaintenanceCharge = true
     if (isMaintenanceChargeEndedEvent(event)) isMaintenanceCharge = false
 
-    events.push(event)
-    if (events.length > 300) {
-      events.shift()
+    const powerRouterId = req.body.header.powerrouter_id
+    if (!powerRouters.has(powerRouterId)) {
+      let powerRouter = {}
+      powerRouter.powerRouterId = powerRouterId
+      powerRouter.events = []
+      powerRouters.set(powerRouterId, powerRouter)
+    }
+    let powerRouter = powerRouters.get(powerRouterId)
+    powerRouter.isWinterMode = isWinterMode
+    powerRouter.isMaintenanceCharge = isMaintenanceCharge
+
+    powerRouter.events.push(event)
+    if (powerRouter.events.length > 300) {
+      powerRouter.events.shift()
     }
   } catch (e) {
     console.error(e)
