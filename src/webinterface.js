@@ -20,7 +20,7 @@ const buildPowerRouterIds = (powerRouterIds) => {
     for (let powerRouterId of powerRouterIds) {
         powerRouterIdsString = powerRouterIdsString + '<a href="/?powerRouterId=' + powerRouterId + '" target="_blank">' + powerRouterId + '</a>' + ', '
     }
-    powerRouterIdsString.slice(0, -2)
+    powerRouterIdsString = powerRouterIdsString.slice(0, -2)
     return powerRouterIdsString
 }
 
@@ -172,8 +172,8 @@ const buildNoDataMessage = () => `
 
 const buildWebinterface = (powerRouterId, powerRouterIds, data, stats, status, config, lastUpdate, updateAvailable = false) => `
 ${buildHeader()}
-${lastUpdate ? '<p>Aktuelle Powerrouter ID: ${powerRouterId}</p>' : ''}
-${lastUpdate ? '<p>Verfügbare Powerrouter IDs: ${buildPowerRouterIds(powerRouterIds)}</p>' : ''}
+${lastUpdate ? '<p>Aktuelle Powerrouter ID: ' + powerRouterId + '</p>' : ''}
+${lastUpdate ? '<p>Verfügbare Powerrouter IDs: ' + buildPowerRouterIds(powerRouterIds) + '</p>' : ''}
 ${lastUpdate ? buildTable(data, stats, status) : buildNoDataMessage()}
 ${buildFooter(lastUpdate, updateAvailable, config.webReload)}
 `
