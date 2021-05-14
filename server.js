@@ -85,7 +85,7 @@ app.get('/', (req, res) => {
       isWinterMode,
       isMaintenanceCharge
     }, {webReload}, powerRouter.lastUpdate, updateAvailable))
-  } else if (powerRouters.size > 0) {
+  } else if (powerRouters.size > 0 && powerRouterId === undefined) {
     let powerRouter = powerRouters.values().next().value
     let isWinterMode = powerRouter.isWinterMode
     let isMaintenanceCharge = powerRouter.isMaintenanceCharge
@@ -103,7 +103,7 @@ app.get('/', (req, res) => {
 
 app.get('/values.json', (req, res) => {
   let powerRouterId = req.query.powerRouterId
-  if (!powerRouters.has(powerRouterId)) {
+  if (powerRouters.has(powerRouterId)) {
     res.type('json').send(powerRouters.get(powerRouterId).currentData)
   } else {
     res.type('json').send({})
@@ -112,7 +112,7 @@ app.get('/values.json', (req, res) => {
 
 app.get('/status.json', (req, res) => {
   let powerRouterId = req.query.powerRouterId
-  if (!powerRouters.has(powerRouterId)) {
+  if (powerRouters.has(powerRouterId)) {
     res.type('json').send(powerRouters.get(powerRouterId).currentStatuses)
   } else {
     res.type('json').send({})
@@ -121,7 +121,7 @@ app.get('/status.json', (req, res) => {
 
 app.get('/events.json', (req, res) => {
   let powerRouterId = req.query.powerRouterId
-  if (!powerRouters.has(powerRouterId)) {
+  if (powerRouters.has(powerRouterId)) {
     res.type('json').send([...powerRouters.get(powerRouterId).events].reverse())
   } else {
     res.type('json').send([])
@@ -149,7 +149,7 @@ app.post('/logs.json', (req, res) => {
 
     actions.forEach((action, index) => {
       try {
-        action.update({ data, powerRouterID })
+        action.update({ data, powerRouterId })
       } catch (e) {
         console.error(`Failed to invoke action at index ${index}`, e)
       }
