@@ -77,7 +77,7 @@ runUpdateCheck(CURRENT_VERSION, () => updateAvailable = true)
 app.get('/', (req, res) => {
   let powerRouterId = req.query.powerRouterId
   console.log('PowerRouter ID: ', powerRouterId)
-  if (!powerRouters.has(powerRouterId)) {
+  if (powerRouters.has(powerRouterId)) {
     let powerRouter = powerRouters.get(powerRouterId)
     let isWinterMode = powerRouter.isWinterMode
     let isMaintenanceCharge = powerRouter.isMaintenanceCharge
