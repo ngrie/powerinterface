@@ -76,25 +76,25 @@ runUpdateCheck(CURRENT_VERSION, () => updateAvailable = true)
 
 app.get('/', (req, res) => {
   let powerRouterId = req.query.powerRouterId
-  console.log('PowerRouter ID: ', powerRouterId)
   if (powerRouters.has(powerRouterId)) {
     let powerRouter = powerRouters.get(powerRouterId)
     let isWinterMode = powerRouter.isWinterMode
     let isMaintenanceCharge = powerRouter.isMaintenanceCharge
-    res.send(buildWebinterface(powerRouter.currentData, powerRouter.stats, {
+    res.send(buildWebinterface(powerRouterId, powerRouters.keys(), powerRouter.currentData, powerRouter.stats, {
       isWinterMode,
       isMaintenanceCharge
     }, {webReload}, powerRouter.lastUpdate, updateAvailable))
   } else if (powerRouters.size > 0 && powerRouterId === undefined) {
-    let powerRouter = powerRouters.values().next().value
+    let powerRouterId = powerRouters.keys().next().value
+    let powerRouter = powerRouters.get(powerRouterId)
     let isWinterMode = powerRouter.isWinterMode
     let isMaintenanceCharge = powerRouter.isMaintenanceCharge
-    res.send(buildWebinterface(powerRouter.currentData, powerRouter.stats, {
+    res.send(buildWebinterface(powerRouterId, powerRouters.keys(), powerRouter.currentData, powerRouter.stats, {
       isWinterMode,
       isMaintenanceCharge
     }, {webReload}, powerRouter.lastUpdate, updateAvailable))
   } else {
-    res.send(buildWebinterface({}, initStats(), {
+    res.send(buildWebinterface(null, null, {}, initStats(), {
       isWinterMode:false,
       isMaintenanceCharge:false
     }, {webReload}, null, updateAvailable))
@@ -135,9 +135,10 @@ app.post('/logs.json', (req, res) => {
     if (!powerRouters.has(powerRouterId)) {
       let powerRouter = {}
       powerRouter.powerRouterId = powerRouterId
+      powerRouter.events = []
       powerRouters.set(powerRouterId, powerRouter)
     }
-    let powerRouter = powerRouters.get(powerRouterId)  // null  {}
+    let powerRouter = powerRouters.get(powerRouterId)
     powerRouter.stats = initStats()
     powerRouter.currentData = data
     powerRouter.currentStatuses = statuses
