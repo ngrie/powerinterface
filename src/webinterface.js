@@ -172,8 +172,8 @@ const buildNoDataMessage = () => `
 
 const buildWebinterface = (powerRouterId, powerRouterIds, data, stats, status, config, lastUpdate, updateAvailable = false) => `
 ${buildHeader()}
-${lastUpdate ? '<p>Aktuelle Powerrouter ID: ' + powerRouterId + '</p>' : ''}
-${lastUpdate ? '<p>Verfügbare Powerrouter IDs: ' + buildPowerRouterIds(powerRouterIds) + '</p>' : ''}
+${powerRouterId ? '<p>Aktuelle Powerrouter ID: ' + powerRouterId + '</p>' : ''}
+${powerRouterIds ? '<p>Verfügbare Powerrouter IDs: ' + buildPowerRouterIds(powerRouterIds) + '</p>' : ''}
 ${lastUpdate ? buildTable(data, stats, status) : buildNoDataMessage()}
 ${buildFooter(lastUpdate, updateAvailable, config.webReload)}
 `
