@@ -72,6 +72,7 @@ app.use(morgan('combined'))
 let updateAvailable = false
 let powerRouters = new Map()
 
+// creates and initializes new powerrouter object and stores it in a map
 const addNewPowerRouter = (powerRouterId) => {
   let powerRouter = {}
   powerRouter.powerRouterId = powerRouterId
@@ -88,18 +89,22 @@ const addNewPowerRouter = (powerRouterId) => {
 runUpdateCheck(CURRENT_VERSION, () => updateAvailable = true)
 
 app.get('/', (req, res) => {
+  // get the powerrouter ID from url query
+  // change the powerrouter ID to the first one which sent data already when no query is given
   let powerRouterId = req.query.powerRouterId
   if (powerRouters.size > 0 && powerRouterId === undefined) {
     powerRouterId = powerRouters.keys().next().value
   }
 
   if (powerRouters.has(powerRouterId)) {
+    // show webinterface with data of the correct powerrouter
     let powerRouter = powerRouters.get(powerRouterId)
     res.send(buildWebinterface(powerRouterId, powerRouters.keys(), powerRouter.currentData, powerRouter.stats, {
       isWinterMode:powerRouter.isWinterMode,
       isMaintenanceCharge:powerRouter.isMaintenanceCharge
     }, {webReload}, powerRouter.lastUpdate, updateAvailable))
   } else {
+    // show no data page and selected, available IDs when available if no powerrouter sent data or this ID isn't known
     let powerRouterIds = powerRouters.size > 0 ? powerRouters.keys() : null
     res.send(buildWebinterface(powerRouterId, powerRouterIds, {}, initStats(), {
       isWinterMode:false,
@@ -109,40 +114,52 @@ app.get('/', (req, res) => {
 })
 
 app.get('/values.json', (req, res) => {
+  // get the powerrouter ID from url query
+  // change the powerrouter ID to the first one which sent data already when no query is given
   let powerRouterId = req.query.powerRouterId
   if (powerRouters.size > 0 && powerRouterId === undefined) {
     powerRouterId = powerRouters.keys().next().value
   }
 
   if (powerRouters.has(powerRouterId)) {
+    // send current data of the correct ID in json format
     res.type('json').send(powerRouters.get(powerRouterId).currentData)
   } else {
+    // send empty object if no powerrouter sent data or this ID isn't known
     res.type('json').send({})
   }
 })
 
 app.get('/status.json', (req, res) => {
+  // get the powerrouter ID from url query
+  // change the powerrouter ID to the first one which sent data already when no query is given
   let powerRouterId = req.query.powerRouterId
   if (powerRouters.size > 0 && powerRouterId === undefined) {
     powerRouterId = powerRouters.keys().next().value
   }
 
   if (powerRouters.has(powerRouterId)) {
+    // send current status of the correct ID in json format
     res.type('json').send(powerRouters.get(powerRouterId).currentStatuses)
   } else {
+    // send empty object if no powerrouter sent data or this ID isn't known
     res.type('json').send({})
   }
 })
 
 app.get('/events.json', (req, res) => {
+  // get the powerrouter ID from url query
+  // change the powerrouter ID to the first one which sent data already when no query is given
   let powerRouterId = req.query.powerRouterId
   if (powerRouters.size > 0 && powerRouterId === undefined) {
     powerRouterId = powerRouters.keys().next().value
   }
 
   if (powerRouters.has(powerRouterId)) {
+    // send events list of the correct ID in json format
     res.type('json').send([...powerRouters.get(powerRouterId).events].reverse())
   } else {
+    // send empty list if no powerrouter sent data or this ID isn't known
     res.type('json').send([])
   }
 })
@@ -154,6 +171,7 @@ app.post('/logs.json', (req, res) => {
     if (!powerRouters.has(powerRouterId)) {
       addNewPowerRouter(powerRouterId)
     }
+    // update the correct powerrouter with the newly received data
     let powerRouter = powerRouters.get(powerRouterId)
     powerRouter.currentData = data
     powerRouter.currentStatuses = statuses
@@ -200,6 +218,7 @@ app.post('/events.json', (req, res) => {
     if (!powerRouters.has(powerRouterId)) {
       addNewPowerRouter(powerRouterId)
     }
+    // update the correct powerrouter with the newly received data
     let powerRouter = powerRouters.get(powerRouterId)
     powerRouter.isWinterMode = isWinterMode
     powerRouter.isMaintenanceCharge = isMaintenanceCharge

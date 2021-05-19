@@ -15,6 +15,7 @@ const buildStatsMonthlyLabel = (stats) => `seit ${stats.dataSince.monthly.toLoca
   { day: '2-digit', month:'2-digit' }
 )}`
 
+// build a string with links to all given powerrouter IDs
 const buildPowerRouterIds = (powerRouterIds) => {
     let powerRouterIdsString = ''
     for (let powerRouterId of powerRouterIds) {

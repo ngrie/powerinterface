@@ -1,10 +1,10 @@
 # powerinterface
 
-This is a simple web interface that shows statistics about your Nedap PowerRouter. It aims to serve as a self-hosted replacement for the discontinued mypowerrouter.com interface.
+This is a simple web interface that shows statistics about your Nedap PowerRouters. It aims to serve as a self-hosted replacement for the discontinued mypowerrouter.com interface.
 
 ## Features
 
-- Show current PowerRouter stats of your PowerRouter
+- Show current PowerRouter stats of multiple PowerRouters
 - Forward data to an InfluxDB
 
 ## Documentation
@@ -50,7 +50,7 @@ Enter `http://[IP of your devie running Powerinterface]` in your browser. You sh
 
 #### Install without Docker / run from source
 
-Make sure to have NodeJS and Git installed.
+Make sure to have NodeJS (>=12) and Git installed.
 
 ```bash
 git clone https://github.com/ngrie/powerinterface.git
@@ -121,8 +121,8 @@ actions:
     port: 8086
 ```
 
-Of course, adjust host, database, username, password and port as needed (if you run InfluxDB on the same device without changing any configs the above values should work).
+Of course, adjust host, database, username, password and port as needed (if you run InfluxDB on the same device without changing any configs the above values should work). If you're using Powerinterface with Docker localhost (127.0.0.1) doesn't work here because the Docker container runs in its own separated environment. Because of that you have to give the local ip address of the device.
 
-If you installed Powerinterface using Docker, edit `docker-compose.yml` and uncomment (remove the `#`) the last four lines.
+If you installed Powerinterface using Docker, edit `docker-compose.yml` and uncomment (remove the `#`) the last four lines. Then you need to update your Docker container with `docker-compose up -d`
 
 Afterwards, restart Powerinterface (Docker: `docker-compose restart`, systemd: `systemctl restart powerinterface`).
