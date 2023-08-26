@@ -117,7 +117,7 @@ app.post('/logs.json', (req, res) => {
     })
     if (forwardRequests) {
       // forward request to logging1.powerrouter.com
-      axios.post('http://77.222.80.91/logs.json', req.body, { headers: { Host: 'logging1.powerrouter.com' } })
+      axios.post('http://144.2.168.138/logs.json', req.body, { headers: { Host: 'logging1.powerrouter.com' } })
         .catch(({ response }) => {
           console.error('Forwarding request to logging1.powerrouter.com failed', response && response.status)
         })
@@ -151,7 +151,7 @@ app.post('/events.json', (req, res) => {
   }
   if (forwardRequests) {
     // forward request to logging1.powerrouter.com
-    axios.post('http://77.222.80.91/events.json', req.body, { headers: { Host: 'logging1.powerrouter.com' } })
+    axios.post('http://144.2.168.138/events.json', req.body, { headers: { Host: 'logging1.powerrouter.com' } })
       .catch(({ response }) => {
         console.error('Forwarding request to logging1.powerrouter.com failed', response && response.status)
       })
