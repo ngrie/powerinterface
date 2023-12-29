@@ -15,6 +15,16 @@ const buildStatsMonthlyLabel = (stats) => `seit ${stats.dataSince.monthly.toLoca
   { day: '2-digit', month:'2-digit' }
 )}`
 
+// build a string with links to all given powerrouter IDs
+const buildPowerRouterIds = (powerRouterIds) => {
+    let powerRouterIdsString = ''
+    for (let powerRouterId of powerRouterIds) {
+        powerRouterIdsString = powerRouterIdsString + '<a href="/?powerRouterId=' + powerRouterId + '" target="_blank">' + powerRouterId + '</a>' + ', '
+    }
+    powerRouterIdsString = powerRouterIdsString.slice(0, -2)
+    return powerRouterIdsString
+}
+
 const buildHeader = () => `<!DOCTYPE html>
 <html lang="de">
   <head>
@@ -161,8 +171,10 @@ const buildNoDataMessage = () => `
 </div>
 `
 
-const buildWebinterface = (data, stats, status, config, lastUpdate, updateAvailable = false) => `
+const buildWebinterface = (powerRouterId, powerRouterIds, data, stats, status, config, lastUpdate, updateAvailable = false) => `
 ${buildHeader()}
+${powerRouterId ? '<p>Aktuelle Powerrouter ID: ' + powerRouterId + '</p>' : ''}
+${powerRouterIds ? '<p>Verfügbare Powerrouter IDs: ' + buildPowerRouterIds(powerRouterIds) + '</p>' : ''}
 ${lastUpdate ? buildTable(data, stats, status) : buildNoDataMessage()}
 ${buildFooter(lastUpdate, updateAvailable, config.webReload)}
 `

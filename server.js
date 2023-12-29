@@ -70,44 +70,117 @@ app.use(express.json())
 app.use(morgan('combined'))
 
 let updateAvailable = false
-let currentData = {}
-let currentStatuses = {}
-let events = []
-let isWinterMode = false
-let isMaintenanceCharge = false
-let lastUpdate = null
-let stats = initStats()
+let powerRouters = new Map()
+
+// creates and initializes new powerrouter object and stores it in a map
+const addNewPowerRouter = (powerRouterId) => {
+  let powerRouter = {}
+  powerRouter.powerRouterId = powerRouterId
+  powerRouter.currentData = {}
+  powerRouter.currentStatuses = {}
+  powerRouter.lastUpdate = null
+  powerRouter.stats = initStats()
+  powerRouter.isWinterMode = false
+  powerRouter.isMaintenanceCharge = false
+  powerRouter.events = []
+  powerRouters.set(powerRouterId, powerRouter)
+}
 
 runUpdateCheck(CURRENT_VERSION, () => updateAvailable = true)
 
 app.get('/', (req, res) => {
-  res.send(buildWebinterface(currentData, stats, { isWinterMode, isMaintenanceCharge }, { webReload }, lastUpdate, updateAvailable))
+  // get the powerrouter ID from url query
+  // change the powerrouter ID to the first one which sent data already when no query is given
+  let powerRouterId = req.query.powerRouterId
+  if (powerRouters.size > 0 && powerRouterId === undefined) {
+    powerRouterId = powerRouters.keys().next().value
+  }
+
+  if (powerRouters.has(powerRouterId)) {
+    // show webinterface with data of the correct powerrouter
+    let powerRouter = powerRouters.get(powerRouterId)
+    res.send(buildWebinterface(powerRouterId, powerRouters.keys(), powerRouter.currentData, powerRouter.stats, {
+      isWinterMode:powerRouter.isWinterMode,
+      isMaintenanceCharge:powerRouter.isMaintenanceCharge
+    }, {webReload}, powerRouter.lastUpdate, updateAvailable))
+  } else {
+    // show no data page and selected, available IDs when available if no powerrouter sent data or this ID isn't known
+    let powerRouterIds = powerRouters.size > 0 ? powerRouters.keys() : null
+    res.send(buildWebinterface(powerRouterId, powerRouterIds, {}, initStats(), {
+      isWinterMode:false,
+      isMaintenanceCharge:false
+    }, {webReload}, null, updateAvailable))
+  }
 })
 
 app.get('/values.json', (req, res) => {
-  res.type('json').send(currentData)
+  // get the powerrouter ID from url query
+  // change the powerrouter ID to the first one which sent data already when no query is given
+  let powerRouterId = req.query.powerRouterId
+  if (powerRouters.size > 0 && powerRouterId === undefined) {
+    powerRouterId = powerRouters.keys().next().value
+  }
+
+  if (powerRouters.has(powerRouterId)) {
+    // send current data of the correct ID in json format
+    res.type('json').send(powerRouters.get(powerRouterId).currentData)
+  } else {
+    // send empty object if no powerrouter sent data or this ID isn't known
+    res.type('json').send({})
+  }
 })
 
 app.get('/status.json', (req, res) => {
-  res.type('json').send(currentStatuses)
+  // get the powerrouter ID from url query
+  // change the powerrouter ID to the first one which sent data already when no query is given
+  let powerRouterId = req.query.powerRouterId
+  if (powerRouters.size > 0 && powerRouterId === undefined) {
+    powerRouterId = powerRouters.keys().next().value
+  }
+
+  if (powerRouters.has(powerRouterId)) {
+    // send current status of the correct ID in json format
+    res.type('json').send(powerRouters.get(powerRouterId).currentStatuses)
+  } else {
+    // send empty object if no powerrouter sent data or this ID isn't known
+    res.type('json').send({})
+  }
 })
 
 app.get('/events.json', (req, res) => {
-  res.type('json').send([...events].reverse())
+  // get the powerrouter ID from url query
+  // change the powerrouter ID to the first one which sent data already when no query is given
+  let powerRouterId = req.query.powerRouterId
+  if (powerRouters.size > 0 && powerRouterId === undefined) {
+    powerRouterId = powerRouters.keys().next().value
+  }
+
+  if (powerRouters.has(powerRouterId)) {
+    // send events list of the correct ID in json format
+    res.type('json').send([...powerRouters.get(powerRouterId).events].reverse())
+  } else {
+    // send empty list if no powerrouter sent data or this ID isn't known
+    res.type('json').send([])
+  }
 })
 
 app.post('/logs.json', (req, res) => {
   try {
     const { data, statuses } = paramConverter(req.body, paramDefinition)
-    currentData = data
-    currentStatuses = statuses
-    lastUpdate = new Date()
-    updateStats(data, stats)
+    const powerRouterId = req.body.header.powerrouter_id
+    if (!powerRouters.has(powerRouterId)) {
+      addNewPowerRouter(powerRouterId)
+    }
+    // update the correct powerrouter with the newly received data
+    let powerRouter = powerRouters.get(powerRouterId)
+    powerRouter.currentData = data
+    powerRouter.currentStatuses = statuses
+    powerRouter.lastUpdate = new Date()
+    updateStats(data, powerRouter.stats)
     if (logRequests) {
       logUnknownRequest(req)
     }
 
-    const powerRouterId = req.body.header.powerrouter_id
     actions.forEach((action, index) => {
       try {
         action.update({ data, powerRouterId })
@@ -134,14 +207,25 @@ app.post('/logs.json', (req, res) => {
 app.post('/events.json', (req, res) => {
   try {
     const event = parseEvent(req.body.event)
+    let isWinterMode = false
+    let isMaintenanceCharge = false
     if (isWinterModeStartedEvent(event)) isWinterMode = true
     if (isWinterModeEndedEvent(event)) isWinterMode = false
     if (isMaintenanceChargeStartedEvent(event)) isMaintenanceCharge = true
     if (isMaintenanceChargeEndedEvent(event)) isMaintenanceCharge = false
 
-    events.push(event)
-    if (events.length > 300) {
-      events.shift()
+    const powerRouterId = req.body.header.powerrouter_id
+    if (!powerRouters.has(powerRouterId)) {
+      addNewPowerRouter(powerRouterId)
+    }
+    // update the correct powerrouter with the newly received data
+    let powerRouter = powerRouters.get(powerRouterId)
+    powerRouter.isWinterMode = isWinterMode
+    powerRouter.isMaintenanceCharge = isMaintenanceCharge
+
+    powerRouter.events.push(event)
+    if (powerRouter.events.length > 300) {
+      powerRouter.events.shift()
     }
   } catch (e) {
     console.error(e)
