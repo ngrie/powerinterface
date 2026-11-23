@@ -1,0 +1,215 @@
+<%
+const getValue = (item) => item ? item.formattedValue : '?'
+const calculateStats = (key, range, currentData, stats) => {
+  if (!currentData[key] || !stats.data || !stats.data[key] || !stats.data[key][range]) {
+    return '?'
+  }
+  const raw = currentData[key].rawValue - stats.data[key][range].rawValue
+  return `${currentData[key].format(raw)} ${currentData[key].unit}`
+}
+const buildStatsDailyLabel = (stats) => `${t('stats.since')} ${stats.dataSince.daily.toLocaleTimeString(
+  t('global.localtz'),
+  { hour: '2-digit', minute:'2-digit' }
+)} ${t('stats.dailySuffix')}`
+const buildStatsMonthlyLabel = (stats) => `${t('stats.since')} ${stats.dataSince.monthly.toLocaleDateString(
+  t('global.localtz'),
+  { day: '2-digit', month:'2-digit' }
+)}`
+%>
+
+<!DOCTYPE html>
+<html lang="<%= i18n.language %>">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= t('global.name') %></title>
+    
+    <link rel="stylesheet" href="site.css">
+  </head>
+  <body>
+    <div class="main">
+
+<% if(lastUpdate) { %>
+
+<h3><%= t('table.pvStrings') %></h3>
+<div style="display: flex">
+  <div style="width: 50%">
+    <table>
+      <tr><td><%= t('table.totalPower') %></td><td><%= getValue(data.solarPower) %></td></tr>
+      <tr><td><%= t('table.inputPower',{item:1}) %></td><td><%= getValue(data.line1Power) %></td></tr>
+      <tr><td><%= t('table.inputVoltage',{item:1}) %></td><td><%= getValue(data.line1Voltage) %></td></tr>
+      <tr><td><%= t('table.inputAmp', {item:1}) %></td><td><%= getValue(data.line1Current) %></td></tr>
+      <tr><td><%= t('table.inputTemp', {item:1}) %></td><td><%= getValue(data.line1Temperature) %></td></tr>
+    </table>
+  </div>
+  <div>
+    <table>
+      <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+      <tr><td><%= t('table.inputPower',{item:2}) %></td><td><%= getValue(data.line2Power) %></td></tr>
+      <tr><td><%= t('table.inputVoltage',{item:2}) %></td><td><%= getValue(data.line2Voltage) %></td></tr>
+      <tr><td><%= t('table.inputAmp',{item:2}) %></td><td><%= getValue(data.line2Current) %></td></tr>
+      <tr><td><%= t('table.inputTemp', {item:2}) %></td><td><%= getValue(data.line2Temperature) %></td></tr>
+    </table>
+  </div>
+</div>
+
+<h3><%= t('network.title') %></h3>
+<div style="display: flex">
+  <div style="width: 50%">
+    <table>
+      <tr><td><%= t('network.performance') %></td><td><%= getValue(data.systemPerformance) %></td></tr>
+      <tr><td><%= t('network.mainsVoltage') %></td><td><%= getValue(data.lineVoltage) %></td></tr>
+      <tr><td><%= t('network.mainsFrequency') %></td><td><%= getValue(data.lineFrequency) %></td></tr>
+    </table>
+  </div>
+  <div>
+    <table>
+      <tr><td><%= t('local.powerOut') %></td><td><%= getValue(data.localOutPower) %></td></tr>
+      <tr><td><%= t('local.voltsOut') %></td><td><%= getValue(data.localOutVoltage) %></td></tr>
+      <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+    </table>
+  </div>
+</div>
+
+<h3>
+  <%= t('battery.title') %>
+  <%= status.isWinterMode ? t('battery.modeWinter') : '' %>
+  <%= status.isMaintenanceCharge ? t('battery.modeMaintenance') : '' %>
+</h3>
+<div style="display: flex">
+  <div style="width: 50%">
+    <table>
+      <tr><td><%= t('battery.stateOfCharge') %></td><td><%= getValue(data.stateOfCharge) %></td></tr>
+      <tr><td><%= t('battery.power') %></td><td><%= getValue(data.batteryPower) %></td></tr>
+      <tr><td><%= t('battery.voltage') %></td><td><%= getValue(data.batteryVoltage) %></td></tr>
+      <tr><td><%= t('battery.amp') %></td><td><%= getValue(data.batteryCurrent) %></td></tr>
+      <tr><td><%= t('battery.temp') %></td><td><%= getValue(data.batteryTemperature) %></td></tr>
+    </table>
+  </div>
+</div>
+
+<h3><%= t('networkSensor.title') %></h3>
+<div style="display: flex">
+  <div style="width: 50%">
+    <table>
+      <tr><td><%= t('networkSensor.powerTotal') %></td><td><%= getValue(data.platformPower) %></td></tr>
+      <tr><td><%= t('networkSensor.phasePower', {item:1}) %></td><td><%= getValue(data.phase1Power) %></td></tr>
+      <tr><td><%= t('networkSensor.phaseVoltage', {item:1}) %></td><td><%= getValue(data.phase1Voltage) %></td></tr>
+      <tr><td><%= t('networkSensor.phaseAmp', {item:1}) %></td><td><%= getValue(data.phase1Current) %></td></tr>
+      <tr><td><%= t('networkSensor.phasePower', {item:3}) %></td><td><%= getValue(data.phase3Power) %></td></tr>
+      <tr><td><%= t('networkSensor.phaseVoltage', {item:3}) %></td><td><%= getValue(data.phase3Voltage) %></td></tr>
+      <tr><td><%= t('networkSensor.phaseAmp', {item:3}) %></td><td><%= getValue(data.phase3Current) %></td></tr>
+    </table>
+  </div>
+  <div>
+    <table>
+      <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+      <tr><td><%= t('networkSensor.phasePower', {item:2}) %></td><td><%= getValue(data.phase2Power) %></td></tr>
+      <tr><td><%= t('networkSensor.phaseVoltage', {item:2}) %></td><td><%= getValue(data.phase2Voltage) %></td></tr>
+      <tr><td><%= t('networkSensor.phaseAmp', {item:2}) %></td><td><%= getValue(data.phase2Current) %></td></tr>
+      <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+      <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+      <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+    </table>
+  </div>
+</div>
+
+<h3><%= t('stats.title') %></h3>
+<table class="stats">
+  <tr>
+    <td>&nbsp;</td>
+    <td><%= buildStatsDailyLabel(stats) %></td>
+    <td><%= buildStatsMonthlyLabel(stats) %></td>
+    <td><%= t('stats.total') %></td></tr>
+  <tr>
+    <td><%= t('stats.produced') %></td>
+    <td><%= calculateStats('solarEnergy', 'daily', data, stats) %></td>
+    <td><%= calculateStats('solarEnergy', 'monthly', data, stats) %></td>
+    <td><%= getValue(data.solarEnergy) %></td>
+  </tr>
+  <tr>
+    <td><%= t('stats.feedin') %></td>
+    <td><%= calculateStats('energyPlatformProduced', 'daily', data, stats) %></td>
+    <td><%= calculateStats('energyPlatformProduced', 'monthly', data, stats) %></td>
+    <td><%= getValue(data.energyPlatformProduced) %></td>
+  </tr>
+</table>
+
+<% } else { %>
+
+<div class="nodata">
+  <p>
+    <%= t('setup.nodata') %>
+  </p>
+  <p>
+    <%= t('setup.check1') %> <a href="https://github.com/ngrie/powerinterface" target="_blank"><%= t('setup.checkLink') %></a> <%= t('setup.check2') %>
+  </p>
+  
+</div>
+<% } %>
+
+      <small><%= t('status.lastUpdate', {when: lastUpdate ? lastUpdate.toString() : t('status.never')}) %></small>
+    </div>
+    
+    <div class="footer">
+      <%= t('footer.attrib') %> <a href="https://github.com/ngrie/powerinterface" target="_blank"><%= t('global.name') %></a>
+      <% if(updateAvailable) { %>
+      <div class="updates">
+        <strong><%= t('footer.updatesAvail') %></strong> 
+          <a href="https://github.com/ngrie/powerinterface/releases" target="_blank"><%= t('footer.changelog') %></a> | 
+          <a href="https://github.com/ngrie/powerinterface#Updating" target="_blank"><%= t('footer.howTo') %></a>
+      </div>
+      <% } %>
+    </div>
+    
+    <% if(config.webReload && Number.isInteger(config.webReload) && config.webReload > 0) { %>
+      <script type="text/javascript">setTimeout(function() { location.reload() }, <%= config.webReload %> * 1000)</script>
+    <% } %>
+
+    <% if(config.debug) { %>
+    <script>
+      function sendTestData(){
+        data = {
+  "header": {
+    "powerrouter_id": "9561773H426B8716",
+    "time_send": new Date().toISOString().replace(/\.\d{3}Z$/, '+00:00'),
+    "version": 3,
+    "period": 60
+  },
+  "module_statuses": [
+    {
+      "module_id": 16,
+      "status": 24595,
+      "version": 1,
+      "param_0": 4999,
+      "param_1": 2255,
+      "param_2": 230,
+      "param_3": 4009,
+      "param_4": 1121000,
+      "param_5": 24810001
+    },
+    {
+      "module_id": 9,
+      "status": 1041,
+      "version": 1,
+      "param_0": 0,
+      "param_1": 0,
+      "param_2": 0,
+      "param_3": 7665221,
+      "param_4": 99803
+    }
+  ]
+}
+        fetch('logs.json', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        }
+);
+        console.log('sending test')
+      }
+    </script>
+    <a href="#" onclick="javascript:sendTestData(); return false">Test data</a>
+    <% } %>
+  </body>
+</html>
