@@ -2,7 +2,12 @@ import fs from 'fs'
 import YAML from 'yaml'
 import axios from 'axios'
 import express from 'express'
+import path from 'path'
 import morgan from 'morgan'
+import ejs from 'ejs'
+import i18next from 'i18next'
+import i18nextFsBackend from 'i18next-fs-backend'
+import i18nMiddleware from 'i18next-http-middleware'
 
 import paramConverter from './src/paramConverter.js'
 import paramDefinition from './src/paramDefinition.js'
@@ -14,7 +19,6 @@ import {
   parseEvent,
 } from './src/eventParser.js'
 import { initStats, updateStats } from './src/inMemoryStats.js'
-import buildWebinterface from './src/webinterface.js'
 import { logUnknownRequest, runUpdateCheck, handleSigInt } from './src/utils.js'
 import CURRENT_VERSION from './currentVersion.js'
 
@@ -33,6 +37,7 @@ let config = {}
 let forwardRequests = false
 let logRequests = false
 let webReload = 60
+let debug = false
 
 if (fs.existsSync('./config.yml')) {
   config = YAML.parse(fs.readFileSync('./config.yml', 'utf8')) || {}
@@ -61,13 +66,31 @@ if (fs.existsSync('./config.yml')) {
   if ('webReload' in config) {
     webReload = parseInt(config.webReload)
   }
+  if ('debug in config') {
+    debug = config.debug
+  }
 }
 
 const app = express()
-const port = 80
+const port = 'port' in config ? parseInt(config.port) || 80 : 80
+const lang = 'lang' in config ? config.lang : "de"
+
+i18next
+  .use(i18nextFsBackend)
+//  .use(i18nMiddleware.LanguageDetector)
+  .init({
+  lng: lang,
+  fallbackLng: lang,
+  backend: {
+    loadPath: path.join(process.cwd(), 'locales/{{lng}}.json')
+  }
+})
 
 app.use(express.json())
 app.use(morgan('combined'))
+app.use(express.static(path.join(process.cwd(), 'static')))
+app.set('view engine', 'ejs');
+app.use(i18nMiddleware.handle(i18next))
 
 let updateAvailable = false
 let currentData = {}
@@ -81,7 +104,20 @@ let stats = initStats()
 runUpdateCheck(CURRENT_VERSION, () => updateAvailable = true)
 
 app.get('/', (req, res) => {
-  res.send(buildWebinterface(currentData, stats, { isWinterMode, isMaintenanceCharge }, { webReload }, lastUpdate, updateAvailable))
+  res.render('index', { 
+      data: currentData, 
+      stats: stats, 
+      status: { 
+        isWinterMode: isWinterMode, 
+        isMaintenanceCharge: isMaintenanceCharge 
+      }, 
+      config: { 
+        webReload: webReload,
+        debug: debug
+      }, 
+      lastUpdate: lastUpdate, 
+      updateAvailable:updateAvailable
+    })
 })
 
 app.get('/values.json', (req, res) => {

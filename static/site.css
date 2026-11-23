@@ -1,0 +1,35 @@
+body 
+{
+	background-color: #dedede; 
+	font-family: Arial, serif
+}
+table { margin-bottom: 15px }
+td:last-child { padding-left: 10px; font-weight: bold }
+.stats td:last-child { padding-left: inherit; font-weight: inherit }
+.stats td:not(:first-child) { padding-left: 10px }
+table{
+	border: 0;
+}
+
+.main {
+	width: 600px; 
+	background-color: #fff; 
+	margin: 0 auto; 
+	padding: 15px
+}
+
+.nodata {
+	width: 80%; 
+	margin: 20px auto; 
+	background-color: #EFF6FF; 
+	color: #1D4ED8; 
+	padding: 10px 15px;
+}
+
+.footer {
+	margin: 20px auto 10px auto; 
+	text-align: center
+}
+.footer .updates{
+	margin-top: 10px
+}

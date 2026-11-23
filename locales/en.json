@@ -1,0 +1,65 @@
+{
+	"global": {
+		"name": "Powerinterface",
+		"localtz": "en-US"
+	},
+	"table": {
+		"pvStrings": "PV Strings",
+		"totalPower": "Total Solar Power",
+		"inputPower": "Input Power {{item}}",
+		"inputVoltage": "Input Voltage {{item}}",
+		"inputAmp": "Input Amp {{item}}",
+		"inputTemp": "Input Temperature {{item}}"
+	},
+	"network": {
+		"title": "Network and Local connection",
+		"performance": "System power",
+		"mainsVoltage": "Mains Voltage",
+		"mainsFrequency": "Mains Frequency"
+	},
+	"local": {
+		"powerOut": "Power Out",
+		"voltsOut": "Network Voltage"
+	},
+	"battery": {
+		"title": "Battery",
+		"modeWinter": "[Winter Mode]",
+		"modeMaintenance": "[Maintenance Mode]",
+		"stateOfCharge": "Charge Status",
+		"power": "Power",
+		"voltage": "Voltage",
+		"amp": "Amp",
+		"temp": "Battery Temperature"
+	},
+	"networkSensor": {
+		"title": "Power Sensor",
+		"powerTotal": "Sensor Power",
+		"phasePower": "Phase Power {{item}}",
+		"phaseVoltage": "Phase Voltage {{item}}",
+		"phaseAmp": "Phase Amps {{item}}"
+	},
+	"stats": {
+		"title": "Statistics",
+		"produced": "Solar Energy Produced",
+		"feedin": "Energy Fed In",
+		"since": "Since",
+		"dailySuffix": "",
+		"total": "Total"
+	},
+	"setup": {
+		"nodata": "No data has been received since the Powerinterface has been started. If you already configured your DNS properly, your PowerRouter device should start sending data in a few seconds.",
+		"check1": "Check the",
+		"checkLink": "Powerinterface GitHub page",
+		"check2": "if you need any help."
+	},
+	"status":{
+		"lastUpdate": "Last update: {{when}}",
+		"never": "never"
+	},
+	"footer":{
+		"attrib": "Status page provided by ",
+		"updatesAvail": "Update available!",
+		"changelog": "Read changelog",
+		"howTo": "Learn how to update"
+	}
+}
